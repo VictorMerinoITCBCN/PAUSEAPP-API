@@ -2,8 +2,6 @@
 
 # Endpoints
 
-![alt text](image.png)
-
 ## Auth
 
 Cada peticion a la api deberá incluir un token de autentificación en el header.
