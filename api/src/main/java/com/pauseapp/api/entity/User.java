@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,6 +18,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.GenerationType;
 import lombok.AllArgsConstructor;
@@ -43,9 +45,9 @@ public class User implements UserDetails{
     private Boolean subscription = false;
     private String initialStressLevel;
     private String actualStressLevel = this.initialStressLevel;
-    private int streakDays = 0;
-    private int completedActivities = 0;
-    private Long alertInterval = 24L; 
+    private Integer streakDays = 0;
+    private Integer completedActivities = 0;
+    private Integer alertInterval = 24; 
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -54,6 +56,9 @@ public class User implements UserDetails{
         inverseJoinColumns = @JoinColumn(name = "activity_type_id")
     )
     private Set<ActivityType> recomendatedActivityTypes = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<UserRelation> relations = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> roles = new HashSet<>();

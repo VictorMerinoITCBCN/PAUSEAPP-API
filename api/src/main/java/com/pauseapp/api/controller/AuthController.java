@@ -49,7 +49,7 @@ public class AuthController {
         user.setSubscription(false);
         user.setStreakDays(0);
         user.setCompletedActivities(0);
-        user.setAlertInterval(System.currentTimeMillis() / 1000);
+        user.setAlertInterval(24);
         user.setRecomendatedActivityTypes(recommendedActivities);
 
         userRepository.save(user);
