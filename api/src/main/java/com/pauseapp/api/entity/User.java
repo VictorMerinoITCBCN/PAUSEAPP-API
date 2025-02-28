@@ -7,6 +7,8 @@ import java.util.Set;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -36,6 +38,7 @@ public class User implements UserDetails{
 
     private String name;
     private String email;
+    @JsonIgnore
     private String password;
     private Boolean subscription = false;
     private String initialStressLevel;

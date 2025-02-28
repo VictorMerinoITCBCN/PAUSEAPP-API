@@ -36,7 +36,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
-        if (userRepository.findByEmail(registerRequest.getEmail()) != null) {
+        if (userRepository.findByEmail(registerRequest.getEmail()).orElse(null) != null) {
             return ResponseEntity.badRequest().body("Email in use");
         }
 
@@ -47,8 +47,6 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         
         user.setSubscription(false);
-        user.setInitialStressLevel("stressed");
-        user.setActualStressLevel("calmed");
         user.setStreakDays(0);
         user.setCompletedActivities(0);
         user.setAlertInterval(System.currentTimeMillis() / 1000);

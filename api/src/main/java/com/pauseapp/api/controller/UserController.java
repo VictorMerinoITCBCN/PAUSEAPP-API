@@ -23,8 +23,7 @@ public class UserController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @GetMapping
-    public ResponseEntity<User> getUser(@RequestHeader("Authorization") String token) {
+    public User getUserByToken(String token) {
         if (token == null || !token.startsWith("Bearer ")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token missing or malformed");
         }
@@ -37,13 +36,13 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Token");
         }
 
-        User user = userRepository.findByEmail(email)
-    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
 
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        }
-
+    @GetMapping("/me")
+    public ResponseEntity<User> getUser(@RequestHeader("Authorization") String token) {
+        User user = this.getUserByToken(token);
+        System.err.println(user);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }
