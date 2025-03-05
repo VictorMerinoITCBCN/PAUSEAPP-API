@@ -19,10 +19,10 @@ public class UserRelation {
     private String status;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "sender_user_id", nullable = false)
+    private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "friend_id", nullable = false)
-    private User friend;
+    @JoinColumn(name = "receiver_user_id", nullable = false)
+    private User receiver;
 }

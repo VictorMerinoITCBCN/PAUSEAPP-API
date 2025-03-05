@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pauseapp.api.dto.UserPatch;
+import com.pauseapp.api.dto.UserRelationDTO;
+import com.pauseapp.api.dto.UserRelationPatchDTO;
 import com.pauseapp.api.entity.User;
 import com.pauseapp.api.entity.UserRelation;
 import com.pauseapp.api.repository.UserRelationRepository;
@@ -31,7 +34,7 @@ public class UserController {
     private UserRepository userRepository;
 
     @Autowired 
-    public UserRelationRepository userRelationRepository;
+    private UserRelationRepository userRelationRepository;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -103,19 +106,38 @@ public class UserController {
     }
 
     @GetMapping("/relations/sent/{id}")
-    public ResponseEntity<List<UserRelation>> getSentRelations(@RequestParam Long id) {
-        List<UserRelation> userRelations = userRelationRepository.findByUserId(id);
+    public ResponseEntity<List<UserRelation>> getSentRelations(@PathVariable Long id) {
+        List<UserRelation> userRelations = userRelationRepository.findBySenderId(id);
         return new ResponseEntity<>(userRelations, HttpStatus.OK);
     }
 
-    @GetMapping("/relations/recived/{id}")
-    public ResponseEntity<List<UserRelation>> getRecivedRelations(@PathVariable Long id) {
-        List<UserRelation> userRelations = userRelationRepository.findByFriendId(id);
+    @GetMapping("/relations/received/{id}")
+    public ResponseEntity<List<UserRelation>> getReceivedRelations(@PathVariable Long id) {
+        List<UserRelation> userRelations = userRelationRepository.findByReceiverId(id);
         return new ResponseEntity<>(userRelations, HttpStatus.OK);
     }
 
-    @GetMapping("/relations/create/{id}")
-    public ResponseEntity<> createRelation(@PathVariable Long id) {
-        return new ResponseEntity<>(null, HttpStatus.OK);
+    @PostMapping("/relations")
+    public ResponseEntity<UserRelation> createRelation(@RequestBody UserRelationDTO body) {
+        User sender = userRepository.findById(body.getSenderId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        User receiver = userRepository.findById(body.getReceiverId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        UserRelation userRelation = new UserRelation();
+        userRelation.setSender(sender);
+        userRelation.setReceiver(receiver);
+
+        userRelationRepository.save(userRelation);
+
+        return new ResponseEntity<>(userRelation, HttpStatus.OK);
+    }
+
+    @PatchMapping("/relations/{id}")
+    public ResponseEntity<UserRelation> updateRelation(@PathVariable Long id,@RequestBody UserRelationPatchDTO body) {
+        UserRelation userRelation = userRelationRepository.findById(id).orElseThrow(() ->new ResponseStatusException(HttpStatus.NOT_FOUND, "Relation not found"));
+
+        userRelation.setStatus(body.getStatus());
+        userRelationRepository.save(userRelation);
+
+        return new ResponseEntity<>(userRelation, HttpStatus.OK);
     }
 }

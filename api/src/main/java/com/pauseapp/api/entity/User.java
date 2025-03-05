@@ -57,8 +57,12 @@ public class User implements UserDetails{
     )
     private Set<ActivityType> recomendatedActivityTypes = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<UserRelation> relations = new HashSet<>();
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<UserRelation> sentRelations = new HashSet<>();
+    
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<UserRelation> receivedRelations = new HashSet<>();
+    
 
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> roles = new HashSet<>();

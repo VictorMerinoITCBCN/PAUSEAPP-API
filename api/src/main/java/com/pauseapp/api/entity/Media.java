@@ -4,15 +4,16 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "activity_type")
+@Table(name = "media")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActivityType {
+public class Media {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private String name;
+    private String type;
+    private String url;
 }
