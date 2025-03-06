@@ -8,6 +8,6 @@ import com.pauseapp.api.entity.Activity;
 import com.pauseapp.api.entity.ActivityType;
 
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
-    List<Activity> findByType(ActivityType activityType);
+    List<Activity> findByNameStartingWith(String name);
     List<Activity> findByTypeIn(List<ActivityType> activityTypes);
 }

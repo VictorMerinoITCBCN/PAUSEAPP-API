@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.pauseapp.api.dto.ActivityDTO;
+import com.pauseapp.api.dto.activity.ActivityCreationRequest;
 import com.pauseapp.api.entity.Activity;
 import com.pauseapp.api.entity.ActivityType;
 import com.pauseapp.api.entity.Media;
@@ -52,14 +52,23 @@ public class ActivityController {
         return ResponseEntity.ok(activities);
     }
 
-    @GetMapping("/types")
-    public ResponseEntity<List<ActivityType>> getActivityTypes() {
-        List<ActivityType> activityTypes = activityTypeRepository.findAll();
-        return new ResponseEntity<>(activityTypes, HttpStatus.OK);
-    } 
+    @GetMapping("/{id}")
+    public ResponseEntity<Activity> getActivityById(@PathVariable Long id) {
+        Activity activity = activityRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found"));
+
+        return new ResponseEntity<>(activity, HttpStatus.OK);
+    }
+
+    @GetMapping("/{name}")
+    public ResponseEntity<List<Activity>> getActivitiesByName(@PathVariable String name) {
+        List<Activity> activities = activityRepository.findByNameStartingWith(name);
+
+        return new ResponseEntity<>(activities, HttpStatus.OK);
+    }
 
     @PostMapping
-    public ResponseEntity<Activity> createActivity(@RequestBody ActivityDTO body) {
+    public ResponseEntity<Activity> createActivity(@RequestBody ActivityCreationRequest body) {
         ActivityType activityType = activityTypeRepository.findById(body.getTypeId())
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ActiviyType not found"));
 

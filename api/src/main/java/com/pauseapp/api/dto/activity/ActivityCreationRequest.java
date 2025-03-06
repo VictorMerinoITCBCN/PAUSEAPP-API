@@ -1,12 +1,9 @@
-package com.pauseapp.api.dto;
-
-import com.pauseapp.api.entity.ActivityType;
-import com.pauseapp.api.entity.Media;
+package com.pauseapp.api.dto.activity;
 
 import lombok.Data;
 
 @Data
-public class ActivityDTO {
+public class ActivityCreationRequest {
     private String name;
     private String description;
     private Long typeId;

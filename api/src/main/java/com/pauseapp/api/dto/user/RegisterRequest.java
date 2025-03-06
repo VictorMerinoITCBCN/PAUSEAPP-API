@@ -1,4 +1,4 @@
-package com.pauseapp.api.dto;
+package com.pauseapp.api.dto.user;
 
 import lombok.Data;
 

@@ -1,6 +1,5 @@
 package com.pauseapp.api.controller;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.pauseapp.api.dto.LoginRequest;
-import com.pauseapp.api.dto.RegisterRequest;
+import com.pauseapp.api.dto.user.LoginRequest;
+import com.pauseapp.api.dto.user.RegisterRequest;
 import com.pauseapp.api.entity.ActivityType;
 import com.pauseapp.api.entity.User;
 import com.pauseapp.api.repository.UserRepository;

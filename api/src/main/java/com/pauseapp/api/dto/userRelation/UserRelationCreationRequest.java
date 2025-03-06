@@ -1,9 +1,9 @@
-package com.pauseapp.api.dto;
+package com.pauseapp.api.dto.userRelation;
 
 import lombok.Data;
 
 @Data
-public class UserRelationDTO {
+public class UserRelationCreationRequest {
     private Long senderId;
     private Long receiverId;
 }
