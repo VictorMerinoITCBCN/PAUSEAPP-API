@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pauseapp.api.dto.activityRecord.ActivityRecordCreateRequest;
+import com.pauseapp.api.dto.activityRecord.ActivityRecordGetRequest;
 import com.pauseapp.api.dto.activityRecord.ActivityRecordUpdateRequest;
 import com.pauseapp.api.dto.user.UserUpdateRequest;
 import com.pauseapp.api.entity.Activity;
@@ -110,10 +111,18 @@ public class UserController {
 
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
-
+    
     @GetMapping("/{id}/record")
     public ResponseEntity<List<ActivityRecord>> getRecord(@PathVariable Long id) {
         List<ActivityRecord> activityRecord = activityRecordRepository.findByUserId(id);
+        
+        return new ResponseEntity<>(activityRecord, HttpStatus.OK);
+    }
+
+    @GetMapping("/record/")
+    public ResponseEntity<ActivityRecord> getRecordByUserIdAndActivityId(@RequestBody ActivityRecordGetRequest body) {
+        ActivityRecord activityRecord = activityRecordRepository.findByUserIdAndActivityId(body.getUserId(), body.getActivityId())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User or activity not found"));
 
         return new ResponseEntity<>(activityRecord, HttpStatus.OK);
     }
@@ -146,4 +155,5 @@ public class UserController {
 
         return new ResponseEntity<>(activityRecord, HttpStatus.OK);
     }
+
 }
