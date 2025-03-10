@@ -48,7 +48,7 @@ response: {
 
 # User
 
-## `GET /user`
+## `GET /user/me`
 
 *Devuelve datos del usuario correspondiente al token*
 
@@ -96,9 +96,9 @@ response: {
 }
 ```
 
-## `PATCH /user`
+## `PATCH /user/{id}`
 
-*Modifica la propiedad del usuario que hacer referencia al token*
+*Modifica la propiedad del usuario del la id*
 
 ```js
 body: {
@@ -106,9 +106,39 @@ body: {
 }
 ```
 
-## `GET /user/relations`
+## `GET /user/relations/sent/{id}`
 
-*Devuelve la lista de relaciones corespondiente al usuario del token*
+*Devuelve la lista de relaciones enviadas*
+
+```js
+response: [
+    {
+        id: 1,
+        status: "pending",
+        user: {
+            id: 1,
+            name: "Victor",
+            email: "victor@gmail.com",
+            subscription: false,
+            initialStressLevel: "stressed",
+            actualStressLevel: "calmed",
+            streakDays: 34,
+            completedActivities: 60,
+            alertInterval: 1740146391,
+            recomendatedActivityTypes: [
+                {
+                    id: 1,
+                    name: "meditation"
+                }
+            ]
+        }
+    }
+]
+```
+
+## `GET /user/relations/received/{id}`
+
+*Devuelve la lista de relaciones recividas*
 
 ```js
 response: [
@@ -142,11 +172,12 @@ response: [
 
 ```js
 body: {
-    userId: 34
+    senderId: 34,
+    receiverId: 28
 }
 ```
 
-## `POST /user/relations/{id}`
+## `PATCH /user/relations/{id}`
 
 *Actualiza el estado de una relacion*
 
@@ -199,13 +230,13 @@ response: [
 ]
 ```
 
-## `GET /activity?types={idList}`
+## `GET /activity?typeIds={idList}`
 
-*Obtiene una lista de actividades del tipo indicado en el parametro types*
+*Obtiene una lista de actividades del tipo indicado en el parametro typeIds*
 
-**idList es una lista de ids de tipos de actividad separados por comas. El param "?types" es opcional.** 
+**idList es una lista de ids de tipos de actividad separados por comas. El param "?typeIds" es opcional.** 
 
-**Ejemplo: "?types=43,1,25,76"**
+**Ejemplo: "?typeIds=43,1,25,76"**
 
 ```js
 response: [
