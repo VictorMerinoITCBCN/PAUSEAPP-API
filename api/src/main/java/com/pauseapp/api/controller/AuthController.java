@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pauseapp.api.dto.TokenResponse;
 import com.pauseapp.api.dto.user.LoginRequest;
 import com.pauseapp.api.dto.user.RegisterRequest;
 import com.pauseapp.api.entity.ActivityType;
@@ -54,7 +55,11 @@ public class AuthController {
         userRepository.save(user);
         
         String token = jwtUtil.generateToken(user.getEmail());
-        return ResponseEntity.ok(token);
+
+        TokenResponse response = new TokenResponse();
+        response.setToken(token);
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
@@ -72,6 +77,9 @@ public class AuthController {
 
         String token = jwtUtil.generateToken(user.getEmail());
 
-        return ResponseEntity.ok(token);
+        TokenResponse response = new TokenResponse();
+        response.setToken(token);
+
+        return ResponseEntity.ok(response);
     }
 }
