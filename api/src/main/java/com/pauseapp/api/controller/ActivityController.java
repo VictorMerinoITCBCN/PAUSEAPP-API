@@ -22,6 +22,8 @@ import com.pauseapp.api.repository.ActivityRepository;
 import com.pauseapp.api.repository.ActivityTypeRepository;
 import com.pauseapp.api.repository.MediaRepository;
 
+import jakarta.websocket.server.PathParam;
+
 @RestController
 @RequestMapping("/activity")
 public class ActivityController {
@@ -60,8 +62,8 @@ public class ActivityController {
         return new ResponseEntity<>(activity, HttpStatus.OK);
     }
 
-    @GetMapping("/{name}")
-    public ResponseEntity<List<Activity>> getActivitiesByName(@PathVariable String name) {
+    @GetMapping("/search")
+    public ResponseEntity<List<Activity>> getActivitiesByName(@RequestParam String name) {
         List<Activity> activities = activityRepository.findByNameStartingWith(name);
 
         return new ResponseEntity<>(activities, HttpStatus.OK);
@@ -70,20 +72,20 @@ public class ActivityController {
     @PostMapping
     public ResponseEntity<Activity> createActivity(@RequestBody ActivityCreationRequest body) {
         ActivityType activityType = activityTypeRepository.findById(body.getTypeId())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ActiviyType not found"));
-
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ActivityType not found"));
+    
         Media media = mediaRepository.findById(body.getMediaId())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Media not found"));
-
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Media not found"));
+    
         Activity activity = new Activity();
         activity.setName(body.getName());
         activity.setDescription(body.getDescription());
         activity.setType(activityType);
         activity.setThumbnailURL(body.getThumbnailURL());
         activity.setMedia(media);
-
-        activityRepository.save(activity);
-
-        return new ResponseEntity<>(activity, HttpStatus.CREATED);
+    
+        activity = activityRepository.save(activity);
+    
+        return ResponseEntity.status(HttpStatus.CREATED).body(activity);
     }
 }

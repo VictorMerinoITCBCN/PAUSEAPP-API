@@ -68,8 +68,8 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getUsersByName(@RequestParam String name) {
-        List<User> users = userRepository.findByNameStartingWith(name);
+    public ResponseEntity<List<User>> getUsersByName() {
+        List<User> users = userRepository.findAll();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
