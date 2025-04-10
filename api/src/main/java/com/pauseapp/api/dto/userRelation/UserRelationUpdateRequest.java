@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class UserRelationUpdateRequest {
-   private String status; 
+   private Boolean status; 
 }

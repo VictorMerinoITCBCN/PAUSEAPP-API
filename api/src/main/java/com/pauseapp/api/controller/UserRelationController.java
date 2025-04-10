@@ -51,6 +51,7 @@ public class UserRelationController {
         UserRelation userRelation = new UserRelation();
         userRelation.setSender(sender);
         userRelation.setReceiver(receiver);
+        userRelation.setStatus(false);
 
         userRelationRepository.save(userRelation);
 

@@ -1,11 +1,13 @@
 package com.pauseapp.api.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,9 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pauseapp.api.dto.activityRecord.ActivityRecordCreateRequest;
 import com.pauseapp.api.dto.activityRecord.ActivityRecordGetRequest;
 import com.pauseapp.api.dto.activityRecord.ActivityRecordUpdateRequest;
+import com.pauseapp.api.dto.stressLevel.CreateStressLevel;
 import com.pauseapp.api.dto.user.UserUpdateRequest;
 import com.pauseapp.api.entity.Activity;
 import com.pauseapp.api.entity.ActivityRecord;
+import com.pauseapp.api.entity.StressLevel;
 import com.pauseapp.api.entity.User;
 import com.pauseapp.api.repository.ActivityRecordRepository;
 import com.pauseapp.api.repository.ActivityRepository;
@@ -68,9 +72,17 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getUsersByName() {
+    public ResponseEntity<List<User>> getUsers() {
         List<User> users = userRepository.findAll();
         return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUser(@PathVariable Long id) {
+        User user = userRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
@@ -85,14 +97,6 @@ public class UserController {
 
         if (body.getSubscription() != null) {
             user.setSubscription(body.getSubscription());
-        }
-
-        if (body.getInitialStressLevel() != null) {
-            user.setInitialStressLevel(body.getInitialStressLevel());
-        }
-
-        if (body.getActualStressLevel() != null) {
-            user.setActualStressLevel(body.getActualStressLevel());
         }
 
         if (body.getStreakDays() != null) {
@@ -112,6 +116,23 @@ public class UserController {
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
     
+    @PostMapping("/{id}/stress-level")
+    public ResponseEntity<StressLevel> addStressLevel(@PathVariable Long id, @RequestBody CreateStressLevel body) {
+        User user = userRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        StressLevel stressLevel = new StressLevel();
+        if (body.getLevel() == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Level not set"); 
+
+        stressLevel.setLevel(body.getLevel());
+        stressLevel.setDate(LocalDateTime.now());
+        stressLevel.setUser(user);
+        user.getStressLevels().add(stressLevel);
+        userRepository.save(user);
+
+        return new ResponseEntity<>(stressLevel, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}/record")
     public ResponseEntity<List<ActivityRecord>> getRecord(@PathVariable Long id) {
         List<ActivityRecord> activityRecord = activityRecordRepository.findByUserId(id);
@@ -156,4 +177,12 @@ public class UserController {
         return new ResponseEntity<>(activityRecord, HttpStatus.OK);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<User> deleteUser(@PathVariable Long id) {
+        User user = userRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        userRepository.delete(user);
+        return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
+    }
 }

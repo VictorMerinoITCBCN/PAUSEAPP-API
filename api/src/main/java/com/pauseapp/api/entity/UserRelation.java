@@ -16,7 +16,7 @@ public class UserRelation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String status;
+    private Boolean status;
 
     @ManyToOne
     @JoinColumn(name = "sender_user_id", nullable = false)

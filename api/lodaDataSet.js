@@ -45,8 +45,8 @@ const createActivities = async (token) => {
 const main = async () => {
     const { token } = await login();
     console.log(token);
-    //createMedias(token);
-    //createActivityTypes(token);
+    createMedias(token);
+    createActivityTypes(token);
     createActivities(token);
 }
 

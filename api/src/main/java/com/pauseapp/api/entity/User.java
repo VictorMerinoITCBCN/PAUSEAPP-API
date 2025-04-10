@@ -23,6 +23,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.GenerationType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,6 +33,7 @@ import lombok.Setter;
 @Table(name = "user")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"stressLevels", "recomendatedActivityTypes", "sentRelations", "receivedRelations", "activityRecords"})
 public class User implements UserDetails{
 
     @Id
@@ -43,11 +45,12 @@ public class User implements UserDetails{
     @JsonIgnore
     private String password;
     private Boolean subscription = false;
-    private String initialStressLevel;
-    private String actualStressLevel = this.initialStressLevel;
     private Integer streakDays = 0;
     private Integer completedActivities = 0;
     private Integer alertInterval = 24; 
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<StressLevel> stressLevels = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -57,9 +60,11 @@ public class User implements UserDetails{
     )
     private Set<ActivityType> recomendatedActivityTypes = new HashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<UserRelation> sentRelations = new HashSet<>();
     
+    @JsonIgnore
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<UserRelation> receivedRelations = new HashSet<>();
     
