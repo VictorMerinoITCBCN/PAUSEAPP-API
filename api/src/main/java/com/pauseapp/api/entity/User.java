@@ -1,5 +1,6 @@
 package com.pauseapp.api.entity;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -33,32 +35,26 @@ import lombok.Setter;
 @Table(name = "user")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"stressLevels", "recomendatedActivityTypes", "sentRelations", "receivedRelations", "activityRecords"})
+@EqualsAndHashCode(exclude = {"stressLevels", "sentRelations", "receivedRelations", "activityRecords"})
 public class User implements UserDetails{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true) 
     private String name;
     private String email;
     @JsonIgnore
     private String password;
     private Boolean subscription = false;
     private Integer streakDays = 0;
+    private LocalDate lastActivityDate;
     private Integer completedActivities = 0;
     private Integer alertInterval = 24; 
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<StressLevel> stressLevels = new HashSet<>();
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "user_recommended_activities",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "activity_type_id")
-    )
-    private Set<ActivityType> recomendatedActivityTypes = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

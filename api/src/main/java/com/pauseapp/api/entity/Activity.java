@@ -15,6 +15,7 @@ public class Activity {
     private Long id;
     
     private String name;
+    @Column(length = 1000)
     private String description;
     
     @ManyToOne
@@ -23,7 +24,9 @@ public class Activity {
     
     private String thumbnailURL;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "media_id", referencedColumnName = "id")
     private Media media;
+
+    private Boolean isPremium = false;
 }

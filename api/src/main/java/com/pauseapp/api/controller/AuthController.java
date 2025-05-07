@@ -1,5 +1,6 @@
 package com.pauseapp.api.controller;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,16 +42,15 @@ public class AuthController {
         }
 
         User user = new User();
-        Set<ActivityType> recommendedActivities = new HashSet<>();
         user.setName(registerRequest.getName());
         user.setEmail(registerRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         
         user.setSubscription(false);
         user.setStreakDays(0);
+        user.setLastActivityDate(LocalDate.now());
         user.setCompletedActivities(0);
         user.setAlertInterval(24);
-        user.setRecomendatedActivityTypes(recommendedActivities);
 
         userRepository.save(user);
         

@@ -9,4 +9,5 @@ public class ActivityCreationRequest {
     private Long typeId;
     private String thumbnailURL;
     private Long mediaId;
+    private Boolean isPremium;
 }

@@ -10,4 +10,5 @@ import com.pauseapp.api.entity.ActivityType;
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
     List<Activity> findByNameStartingWith(String name);
     List<Activity> findByTypeIn(List<ActivityType> activityTypes);
+    List<Activity> findByisPremium(Boolean isPremium);
 }

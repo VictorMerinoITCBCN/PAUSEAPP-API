@@ -1,5 +1,6 @@
 package com.pauseapp.api.controller;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pauseapp.api.dto.activityRecord.ActivityRecordCreateRequest;
 import com.pauseapp.api.dto.activityRecord.ActivityRecordGetRequest;
 import com.pauseapp.api.dto.activityRecord.ActivityRecordUpdateRequest;
+import com.pauseapp.api.dto.activityRecord.CompleteActivityRequest;
 import com.pauseapp.api.dto.stressLevel.CreateStressLevel;
 import com.pauseapp.api.dto.user.UserUpdateRequest;
 import com.pauseapp.api.entity.Activity;
@@ -75,6 +77,15 @@ public class UserController {
     public ResponseEntity<List<User>> getUsers() {
         List<User> users = userRepository.findAll();
         return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
+    @GetMapping("/check/{username}")
+    public ResponseEntity<Void> checkUsername(@PathVariable String username) {
+        boolean exists = userRepository.existsByName(username);
+        if (exists) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
@@ -140,12 +151,18 @@ public class UserController {
         return new ResponseEntity<>(activityRecord, HttpStatus.OK);
     }
 
-    @GetMapping("/record/")
-    public ResponseEntity<ActivityRecord> getRecordByUserIdAndActivityId(@RequestBody ActivityRecordGetRequest body) {
-        ActivityRecord activityRecord = activityRecordRepository.findByUserIdAndActivityId(body.getUserId(), body.getActivityId())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User or activity not found"));
+    // @PostMapping("/record")
+    // public ResponseEntity<ActivityRecord> getRecordByUserIdAndActivityId(@RequestBody ActivityRecordGetRequest body) {
+    //     ActivityRecord activityRecord = activityRecordRepository.findByUserIdAndActivityId(body.getUserId(), body.getActivityId())
+    //     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User or activity not found"));
 
-        return new ResponseEntity<>(activityRecord, HttpStatus.OK);
+    //     return new ResponseEntity<>(activityRecord, HttpStatus.OK);
+    // }
+
+    @PostMapping("/record")
+    public ResponseEntity<Boolean> doesRecordExist(@RequestBody ActivityRecordGetRequest body) {
+        boolean exists = activityRecordRepository.existsByUserIdAndActivityId(body.getUserId(), body.getActivityId());
+        return new ResponseEntity<>(exists, HttpStatus.OK);
     }
 
     @PostMapping("/{id}/record")
@@ -160,7 +177,7 @@ public class UserController {
         activityRecord.setUser(user);
         activityRecord.setActivity(activity);
         activityRecord.setStatus(body.getStatus());
-        activityRecord.setTime(body.getTime());
+        activityRecord.setTime(LocalDateTime.now());
 
         activityRecordRepository.save(activityRecord);
         return new ResponseEntity<>(activityRecord, HttpStatus.CREATED);
@@ -177,12 +194,43 @@ public class UserController {
         return new ResponseEntity<>(activityRecord, HttpStatus.OK);
     }
 
+    @GetMapping("{userId}/complete-activity/{activityId}")
+    public ResponseEntity<ActivityRecord> completeActivity(@PathVariable Long userId, @PathVariable Long activityId) {
+        ActivityRecord activityRecord = activityRecordRepository.findByUserIdAndActivityId(userId, activityId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User or activity not found"));
+
+        activityRecord.setStatus(true);
+        activityRecord.setTime(LocalDateTime.now());
+        activityRecordRepository.save(activityRecord);
+
+        User user = userRepository.findById(userId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        Integer completedActivities = user.getCompletedActivities();
+        user.setCompletedActivities(completedActivities + 1);
+
+        LocalDate lastActivityDate = user.getLastActivityDate();
+        LocalDate now = LocalDate.now();
+
+        if (lastActivityDate.plusDays(1).isEqual(now)) {
+            Integer streak = user.getStreakDays();
+            user.setStreakDays(streak + 1);
+        } else {
+            user.setStreakDays(1);
+        }
+
+        user.setLastActivityDate(now);
+        userRepository.save(user);
+
+        return new ResponseEntity<>(activityRecord, HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<User> deleteUser(@PathVariable Long id) {
         User user = userRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         userRepository.delete(user);
-        return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }
