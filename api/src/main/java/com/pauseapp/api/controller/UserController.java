@@ -151,14 +151,6 @@ public class UserController {
         return new ResponseEntity<>(activityRecord, HttpStatus.OK);
     }
 
-    // @PostMapping("/record")
-    // public ResponseEntity<ActivityRecord> getRecordByUserIdAndActivityId(@RequestBody ActivityRecordGetRequest body) {
-    //     ActivityRecord activityRecord = activityRecordRepository.findByUserIdAndActivityId(body.getUserId(), body.getActivityId())
-    //     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User or activity not found"));
-
-    //     return new ResponseEntity<>(activityRecord, HttpStatus.OK);
-    // }
-
     @PostMapping("/record")
     public ResponseEntity<Boolean> doesRecordExist(@RequestBody ActivityRecordGetRequest body) {
         boolean exists = activityRecordRepository.existsByUserIdAndActivityId(body.getUserId(), body.getActivityId());
