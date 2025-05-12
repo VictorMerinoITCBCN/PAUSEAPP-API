@@ -1,5 +1,10 @@
 package com.pauseapp.api.controller;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.pauseapp.api.dto.activity.ActivityCreationRequest;
@@ -53,6 +59,8 @@ public class ActivityController {
     
     @Autowired
     private JwtUtil jwtUtil;
+
+    private static final String VIDEO_UPLOAD_DIR = "uploads/videos/";
 
     public User getUserByToken(String token) {
         if (token == null || !token.startsWith("Bearer ")) {
@@ -123,24 +131,105 @@ public class ActivityController {
         return new ResponseEntity<>(activities, HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<Activity> createActivity(@RequestBody ActivityCreationRequest body) {
-        ActivityType activityType = activityTypeRepository.findById(body.getTypeId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ActivityType not found"));
-    
-        Media media = mediaRepository.findById(body.getMediaId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Media not found"));
-    
-        Activity activity = new Activity();
-        activity.setName(body.getName());
-        activity.setDescription(body.getDescription());
-        activity.setType(activityType);
-        activity.setThumbnailURL(body.getThumbnailURL());
-        activity.setMedia(media);
-        activity.setIsPremium(body.getIsPremium());
-    
-        activity = activityRepository.save(activity);
-    
-        return ResponseEntity.status(HttpStatus.CREATED).body(activity);
+    public Media uploadMedia(MultipartFile file) {
+        if (file.isEmpty()) {
+            return null;
+        }
+
+        try {
+            Files.createDirectories(Paths.get(VIDEO_UPLOAD_DIR));
+
+            String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            Path filePath = Paths.get(VIDEO_UPLOAD_DIR, filename);
+
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            Media media = new Media();
+            media.setUrl(filePath.toString());
+            media.setType("video");
+            mediaRepository.save(media);
+
+            return media;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
+
+    public String uploadThumbnail(MultipartFile file) {
+        if (file.isEmpty()) {
+            return null;
+        }
+
+        try {
+            Files.createDirectories(Paths.get(VIDEO_UPLOAD_DIR));
+
+            String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            Path filePath = Paths.get(VIDEO_UPLOAD_DIR, filename);
+
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            return filePath.toString();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createActivity(
+        @RequestParam("name") String name,
+        @RequestParam("description") String description,
+        @RequestParam("typeId") Long typeId,
+        @RequestParam("thumbnail") MultipartFile thumbnailFle,
+        @RequestParam("media") MultipartFile mediaFile,
+        @RequestParam("isPremium") Boolean isPremium
+    ) {
+        String thumbnailURL = uploadThumbnail(thumbnailFle);
+        if (thumbnailURL == null) {
+            return ResponseEntity.badRequest().body("Error uploading the thumbnail");
+        }
+        Media media = uploadMedia(mediaFile);
+        if (media == null) {
+            return ResponseEntity.badRequest().body("Error uploading the media");
+        }
+        ActivityType activityType = activityTypeRepository.findById(typeId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ActivityType not found"));
+
+
+        Activity activity = new Activity();
+        activity.setName(name);
+        activity.setDescription(description);
+        activity.setType(activityType);
+        activity.setThumbnailURL(thumbnailURL);
+        activity.setMedia(media);
+        activity.setIsPremium(isPremium);
+
+        Activity savedActivity = activityRepository.save(activity);
+
+        return new ResponseEntity<>(savedActivity, HttpStatus.CREATED);
+    }
+
+    // @PostMapping
+    // public ResponseEntity<Activity> createActivity(@RequestBody ActivityCreationRequest body) {
+    //     ActivityType activityType = activityTypeRepository.findById(body.getTypeId())
+    //         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ActivityType not found"));
+    
+    //     Media media = mediaRepository.findById(body.getMediaId())
+    //         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Media not found"));
+    
+    //     Activity activity = new Activity();
+    //     activity.setName(body.getName());
+    //     activity.setDescription(body.getDescription());
+    //     activity.setType(activityType);
+    //     activity.setThumbnailURL(body.getThumbnailURL());
+    //     activity.setMedia(media);
+    //     activity.setIsPremium(body.getIsPremium());
+    
+    //     activity = activityRepository.save(activity);
+    
+    //     return ResponseEntity.status(HttpStatus.CREATED).body(activity);
+    // }
 }
