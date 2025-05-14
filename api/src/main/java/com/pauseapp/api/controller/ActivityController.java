@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.pauseapp.api.dto.MessageResponse;
 import com.pauseapp.api.dto.activity.ActivityCreationRequest;
 import com.pauseapp.api.entity.Activity;
 import com.pauseapp.api.entity.ActivityRecord;
@@ -210,6 +212,14 @@ public class ActivityController {
         Activity savedActivity = activityRepository.save(activity);
 
         return new ResponseEntity<>(savedActivity, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<MessageResponse> deleteActivity(@PathVariable Long id) {
+        activityRepository.deleteById(id);
+        MessageResponse messageResponse = new MessageResponse();
+        messageResponse.setMessage("Activity deleted");
+        return new ResponseEntity<>(messageResponse, HttpStatus.OK);
     }
 
     // @PostMapping

@@ -1,5 +1,10 @@
 package com.pauseapp.api.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,4 +34,8 @@ public class Activity {
     private Media media;
 
     private Boolean isPremium = false;
+
+    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ActivityRecord> activityRecords = new ArrayList<>();
 }

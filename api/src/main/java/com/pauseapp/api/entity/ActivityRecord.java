@@ -26,7 +26,7 @@ public class ActivityRecord {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "activity_id", nullable = false)
     private Activity activity;
 }
