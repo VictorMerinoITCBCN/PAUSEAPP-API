@@ -1,3 +1,9 @@
+Aplicación Web:
+https://github.com/EnricUlloa/PROJ2_AppWeb/tree/victor_merino
+
+Aplicación Android:
+https://github.com/LoniousSosa/PauseAppMovil
+
 # PAUSEAPP-API
 
 # Endpoints
